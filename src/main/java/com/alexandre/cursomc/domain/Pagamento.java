@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.alexandre.cursomc.domain.enums.EstadoPagamento;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -31,6 +32,7 @@ abstract public class Pagamento implements Serializable {
 	 * O id gerado para o pedido será o mesmo do pagamento associado
 	 * a ele.
 	 * */
+	@JsonBackReference
 	@OneToOne
 	@JoinColumn(name="pedido_id")
 	@MapsId 

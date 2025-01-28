@@ -3,6 +3,8 @@ package com.alexandre.cursomc.domain;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 
@@ -12,6 +14,7 @@ public class ItemPedido implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/* Esse é um atributo composto, que identificará um item pedido */
+	@JsonIgnore // Esse atributo não será serializado
 	@EmbeddedId
 	private ItemPedidoPK id = new ItemPedidoPK();
 	private Double desconto;
@@ -32,6 +35,7 @@ public class ItemPedido implements Serializable {
 	/* Esse get fornecerá acesso direto ao pedido, sem ter de
 	 * navegar pela cadeia de objetos.
 	 * */
+	@JsonIgnore
 	public Pedido getPedido() {
 		return this.id.getPedido();
 	}
