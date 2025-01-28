@@ -1,5 +1,6 @@
 package com.alexandre.cursomc;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,13 +15,20 @@ import com.alexandre.cursomc.domain.Cidade;
 import com.alexandre.cursomc.domain.Cliente;
 import com.alexandre.cursomc.domain.Endereco;
 import com.alexandre.cursomc.domain.Estado;
+import com.alexandre.cursomc.domain.Pagamento;
+import com.alexandre.cursomc.domain.PagamentoComBoleto;
+import com.alexandre.cursomc.domain.PagamentoComCartao;
+import com.alexandre.cursomc.domain.Pedido;
 import com.alexandre.cursomc.domain.Produto;
+import com.alexandre.cursomc.domain.enums.EstadoPagamento;
 import com.alexandre.cursomc.domain.enums.TipoCliente;
 import com.alexandre.cursomc.repositories.CategoriaRepository;
 import com.alexandre.cursomc.repositories.CidadeRepository;
 import com.alexandre.cursomc.repositories.ClienteRepository;
 import com.alexandre.cursomc.repositories.EnderecoRepository;
 import com.alexandre.cursomc.repositories.EstadoRepository;
+import com.alexandre.cursomc.repositories.PagamentoRepository;
+import com.alexandre.cursomc.repositories.PedidoRepository;
 import com.alexandre.cursomc.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -43,6 +51,12 @@ public class CursomcApplication implements CommandLineRunner {
 	
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(CursomcApplication.class, args);
@@ -74,11 +88,13 @@ public class CursomcApplication implements CommandLineRunner {
 		products.addAll(Arrays.asList(p1, p2, p3));
 		
 		
+		/* Salvando categorias */
 		for(Categoria cat : categories) {
 			categoriaRepository.save(cat);
 		}
 		
 		
+		/* Salvando produtos */
 		for(Produto prod : products) {
 			produtoRepository.save(prod);
 		}
@@ -96,6 +112,7 @@ public class CursomcApplication implements CommandLineRunner {
 		est1.getCidades().addAll(Arrays.asList(c1));
 		est2.getCidades().addAll(Arrays.asList(c2, c3));
 		
+		/* Salvando estados */
 		List<Estado> estados = new ArrayList<>();
 		estados.addAll(Arrays.asList(est1, est2));
 		
@@ -103,6 +120,7 @@ public class CursomcApplication implements CommandLineRunner {
 			estadoRepository.save(est);
 		}
 		
+		/* Salvando cidades */
 		List<Cidade> cidades = new ArrayList<>();
 		cidades.addAll(Arrays.asList(c1, c2, c3));
 		
@@ -132,9 +150,44 @@ public class CursomcApplication implements CommandLineRunner {
 	    	enderecoRepository.save(e);
 	    }
 	    
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 	    
-	
-			
+	    /* O pagamento foi removido do construtor de pedido por que primeiro nós fazemos
+	     * um pedido e depois efetuamos o pagamento, isso quer dizer
+	     * que a associação entre o pedido e o pagamento será posterior
+	     * as instâncias dos pedidos.
+	     * */
+	    Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:03"), cli1, e1);
+	    Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), cli1, e2);
+	    
+	    /* Associando pagamento a pedido */
+	    Pagamento pgto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+	    ped1.setPagamento(pgto1);
+	    
+	    /* Associando pagamento a pedido */
+	    Pagamento pgto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+	    ped2.setPagamento(pgto2);
+	    
+	    /* Associando pedidos a cliente */
+	    cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+	    
+	    /* Salvando pedidos */
+	    List<Pedido> pedidos = new ArrayList<>();
+	    pedidos.addAll(Arrays.asList(ped1, ped2));
+	    
+	    for(Pedido pedido : pedidos) {
+	    	pedidoRepository.save(pedido);
+	    }
+	    
+	    /* Salvando pagamentos */
+	    List<Pagamento> pagamentos = new ArrayList<>();
+	    pagamentos.addAll(Arrays.asList(pgto1, pgto2));
+	    
+	    for(Pagamento pgto : pagamentos) {
+	    	pagamentoRepository.save(pgto);
+	    }
+	   
+	 		
 	}
 
 }
